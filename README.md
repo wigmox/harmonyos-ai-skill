@@ -327,6 +327,130 @@ print(response.content[0].text)
 
 ---
 
+## 🪟 Windows 用户专用（PowerShell）
+
+> 不用 WSL/Git Bash？想直接在 PowerShell 里装？下面是完整的命令对照，**所有工具都能跑通**。
+> 推荐使用 **PowerShell 7+**（`winget install Microsoft.PowerShell`）。
+
+<details>
+<summary><b>📋 点击展开 PowerShell 完整安装命令</b></summary>
+
+**前置：每个新 PowerShell 窗口先运行一次**
+
+```powershell
+$env:RAW = "https://raw.githubusercontent.com/DengShiyingA/harmonyos-ai-skill/main"
+```
+
+### Claude Code CLI（Windows）
+
+```powershell
+# 方式 A — 直接复制（最简单）
+git clone https://github.com/DengShiyingA/harmonyos-ai-skill.git $HOME\src\harmonyos-ai-skill
+New-Item -ItemType Directory -Force $HOME\.claude\skills | Out-Null
+Copy-Item -Recurse $HOME\src\harmonyos-ai-skill\harmonyos-development $HOME\.claude\skills\
+
+# 方式 B — 符号链接（推荐：需要管理员权限或开启「开发者模式」）
+git clone https://github.com/DengShiyingA/harmonyos-ai-skill.git $HOME\src\harmonyos-ai-skill
+New-Item -ItemType Directory -Force $HOME\.claude\skills | Out-Null
+New-Item -ItemType SymbolicLink -Path $HOME\.claude\skills\harmonyos-development -Target $HOME\src\harmonyos-ai-skill\harmonyos-development
+
+# 方式 C — 仅项目级别
+Set-Location <你的鸿蒙项目根目录>
+New-Item -ItemType Directory -Force .claude\skills\harmonyos-development | Out-Null
+Invoke-WebRequest -Uri "$env:RAW/harmonyos-development/SKILL.md" -OutFile .claude\skills\harmonyos-development\SKILL.md
+```
+
+> **开启开发者模式（一次性）：** 设置 → 隐私和安全性 → 开发者选项 → 打开「开发人员模式」。开启后 `New-Item -ItemType SymbolicLink` 不再需要管理员。
+
+### Cursor（Windows）
+
+```powershell
+# 推荐：现代 .mdc 规则
+New-Item -ItemType Directory -Force .cursor\rules | Out-Null
+Invoke-WebRequest -Uri "$env:RAW/dist/cursor/harmonyos.mdc" -OutFile .cursor\rules\harmonyos.mdc
+
+# 或：旧版单文件规则
+Invoke-WebRequest -Uri "$env:RAW/dist/cursor/.cursorrules" -OutFile .cursorrules
+```
+
+### GitHub Copilot（Windows）
+
+```powershell
+New-Item -ItemType Directory -Force .github | Out-Null
+Invoke-WebRequest -Uri "$env:RAW/dist/copilot/copilot-instructions.md" -OutFile .github\copilot-instructions.md
+```
+
+### Windsurf / Codeium（Windows）
+
+```powershell
+Invoke-WebRequest -Uri "$env:RAW/dist/windsurf/.windsurfrules" -OutFile .windsurfrules
+```
+
+### Continue.dev（Windows）
+
+```powershell
+New-Item -ItemType Directory -Force .continue\rules | Out-Null
+Invoke-WebRequest -Uri "$env:RAW/dist/continue/harmonyos.md" -OutFile .continue\rules\harmonyos.md
+```
+
+### AGENTS.md 标准（Codex CLI / opencode / Amp / Aider）（Windows）
+
+```powershell
+Invoke-WebRequest -Uri "$env:RAW/dist/agents-md/AGENTS.md" -OutFile AGENTS.md
+```
+
+全局路径（PowerShell）：
+| 工具 | 路径 |
+|---|---|
+| OpenAI Codex CLI | `$HOME\.codex\AGENTS.md` |
+| sst/opencode | `$HOME\.config\opencode\AGENTS.md` |
+| Amp | `$HOME\.config\amp\AGENTS.md` |
+
+### Google Gemini CLI（Windows）
+
+```powershell
+# 项目级
+Invoke-WebRequest -Uri "$env:RAW/dist/gemini-cli/GEMINI.md" -OutFile GEMINI.md
+
+# 全局
+New-Item -ItemType Directory -Force $HOME\.gemini | Out-Null
+Invoke-WebRequest -Uri "$env:RAW/dist/gemini-cli/GEMINI.md" -OutFile $HOME\.gemini\GEMINI.md
+```
+
+### Ollama 本地模型（Windows）
+
+```powershell
+# 1. 拉取模型
+ollama pull qwen3-coder
+
+# 2. 下载系统提示
+Invoke-WebRequest -Uri "$env:RAW/dist/system-prompt/system.txt" -OutFile system.txt
+
+# 3. 一行启动（用反引号续行）
+ollama run qwen3-coder --system (Get-Content system.txt -Raw)
+
+# 或：写自定义 Modelfile
+@"
+FROM qwen3-coder
+SYSTEM ```"
+$(Get-Content system.txt -Raw)
+```"
+"@ | Set-Content Modelfile
+ollama create harmonyos-coder -f Modelfile
+ollama run harmonyos-coder
+```
+
+### Anthropic SDK Python（跨平台一致）
+
+Python 代码在 Windows 上和 macOS/Linux 完全相同，参考[上方 Anthropic 章节](#anthropic--openai--任意-llm-api)。
+
+</details>
+
+> **常见问题：** PowerShell 报错 `无法将"curl"识别为 cmdlet`？
+> Windows PowerShell 中 `curl` 是 `Invoke-WebRequest` 的别名，**参数不兼容**，请使用上面的 `Invoke-WebRequest` 命令而非 `curl`。
+
+---
+
 ## 各工具的激活方式
 
 | 工具类别 | 触发机制 | 始终开启？ |

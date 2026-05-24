@@ -328,6 +328,130 @@ print(response.content[0].text)
 
 ---
 
+## 🪟 Windows users (native PowerShell)
+
+> Don't want to use WSL/Git Bash? Want to install directly in PowerShell? Here's the complete command translation — **every tool works on Windows**.
+> Recommended: **PowerShell 7+** (`winget install Microsoft.PowerShell`).
+
+<details>
+<summary><b>📋 Click to expand full PowerShell install commands</b></summary>
+
+**Prereq: run this once in every new PowerShell window**
+
+```powershell
+$env:RAW = "https://raw.githubusercontent.com/DengShiyingA/harmonyos-ai-skill/main"
+```
+
+### Claude Code CLI (Windows)
+
+```powershell
+# Option A — quick copy (simplest)
+git clone https://github.com/DengShiyingA/harmonyos-ai-skill.git $HOME\src\harmonyos-ai-skill
+New-Item -ItemType Directory -Force $HOME\.claude\skills | Out-Null
+Copy-Item -Recurse $HOME\src\harmonyos-ai-skill\harmonyos-development $HOME\.claude\skills\
+
+# Option B — symlink (recommended: needs admin or "Developer Mode" enabled)
+git clone https://github.com/DengShiyingA/harmonyos-ai-skill.git $HOME\src\harmonyos-ai-skill
+New-Item -ItemType Directory -Force $HOME\.claude\skills | Out-Null
+New-Item -ItemType SymbolicLink -Path $HOME\.claude\skills\harmonyos-development -Target $HOME\src\harmonyos-ai-skill\harmonyos-development
+
+# Option C — project-local only
+Set-Location <your-harmonyos-project-root>
+New-Item -ItemType Directory -Force .claude\skills\harmonyos-development | Out-Null
+Invoke-WebRequest -Uri "$env:RAW/harmonyos-development/SKILL.md" -OutFile .claude\skills\harmonyos-development\SKILL.md
+```
+
+> **Enable Developer Mode (one-time):** Settings → Privacy & security → For developers → toggle "Developer Mode" on. After that, `New-Item -ItemType SymbolicLink` no longer needs admin.
+
+### Cursor (Windows)
+
+```powershell
+# Recommended: modern .mdc rule
+New-Item -ItemType Directory -Force .cursor\rules | Out-Null
+Invoke-WebRequest -Uri "$env:RAW/dist/cursor/harmonyos.mdc" -OutFile .cursor\rules\harmonyos.mdc
+
+# Or: legacy single-file rules
+Invoke-WebRequest -Uri "$env:RAW/dist/cursor/.cursorrules" -OutFile .cursorrules
+```
+
+### GitHub Copilot (Windows)
+
+```powershell
+New-Item -ItemType Directory -Force .github | Out-Null
+Invoke-WebRequest -Uri "$env:RAW/dist/copilot/copilot-instructions.md" -OutFile .github\copilot-instructions.md
+```
+
+### Windsurf / Codeium (Windows)
+
+```powershell
+Invoke-WebRequest -Uri "$env:RAW/dist/windsurf/.windsurfrules" -OutFile .windsurfrules
+```
+
+### Continue.dev (Windows)
+
+```powershell
+New-Item -ItemType Directory -Force .continue\rules | Out-Null
+Invoke-WebRequest -Uri "$env:RAW/dist/continue/harmonyos.md" -OutFile .continue\rules\harmonyos.md
+```
+
+### AGENTS.md standard (Codex CLI / opencode / Amp / Aider) (Windows)
+
+```powershell
+Invoke-WebRequest -Uri "$env:RAW/dist/agents-md/AGENTS.md" -OutFile AGENTS.md
+```
+
+Global paths (PowerShell):
+| Tool | Path |
+|---|---|
+| OpenAI Codex CLI | `$HOME\.codex\AGENTS.md` |
+| sst/opencode | `$HOME\.config\opencode\AGENTS.md` |
+| Amp | `$HOME\.config\amp\AGENTS.md` |
+
+### Google Gemini CLI (Windows)
+
+```powershell
+# Project-level
+Invoke-WebRequest -Uri "$env:RAW/dist/gemini-cli/GEMINI.md" -OutFile GEMINI.md
+
+# Global
+New-Item -ItemType Directory -Force $HOME\.gemini | Out-Null
+Invoke-WebRequest -Uri "$env:RAW/dist/gemini-cli/GEMINI.md" -OutFile $HOME\.gemini\GEMINI.md
+```
+
+### Ollama local LLM (Windows)
+
+```powershell
+# 1. Pull the model
+ollama pull qwen3-coder
+
+# 2. Download the system prompt
+Invoke-WebRequest -Uri "$env:RAW/dist/system-prompt/system.txt" -OutFile system.txt
+
+# 3. One-liner launch
+ollama run qwen3-coder --system (Get-Content system.txt -Raw)
+
+# Or: bake into a custom Modelfile
+@"
+FROM qwen3-coder
+SYSTEM ```"
+$(Get-Content system.txt -Raw)
+```"
+"@ | Set-Content Modelfile
+ollama create harmonyos-coder -f Modelfile
+ollama run harmonyos-coder
+```
+
+### Anthropic SDK Python (cross-platform, identical)
+
+Python code is identical on Windows and macOS/Linux. See the [Anthropic section above](#anthropic--openai--any-llm-api).
+
+</details>
+
+> **Common pitfall:** PowerShell error `'curl' is not recognized as a cmdlet`?
+> In Windows PowerShell, `curl` is an alias for `Invoke-WebRequest` but **the arguments are NOT compatible**. Use the `Invoke-WebRequest` commands above instead of `curl`.
+
+---
+
 ## How activation differs by tool
 
 | Tool category | Trigger mechanism | Always on? |
